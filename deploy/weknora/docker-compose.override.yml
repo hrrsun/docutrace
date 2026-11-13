@@ -1,0 +1,47 @@
+services:
+  frontend:
+    volumes:
+      - ./config/frontend.conf.template:/etc/nginx/templates/default.conf.template:ro
+  studio:
+    build:
+      context: ../..
+      dockerfile: deploy/weknora/studio.Dockerfile
+    image: docagent/studio:1
+    environment:
+      WEKNORA_INTERNAL_URL: http://app:8080
+      OLLAMA_INTERNAL_URL: http://host.docker.internal:11434
+      STUDIO_DB: /data/studio.sqlite3
+      RUNNER_TOKEN: ${RUNNER_TOKEN:-}
+    volumes:
+      - studio-data:/data
+    networks: [WeKnora-network]
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 1g
+    cpus: 2
+    pids_limit: 128
+    restart: unless-stopped
+  app:
+    environment:
+      GIN_MODE: release
+      LOG_LEVEL: warn
+      LLM_DEBUG_LOG: "false"
+      SSRF_WHITELIST_EXTRA: evidence-tools,studio,host.docker.internal,searxng,qdrant,milvus,weaviate,doris-fe,doris-be,minio
+  evidence-tools:
+    build: ./tools
+    image: docagent/evidence-tools:1
+    environment:
+      RUNNER_TOKEN: ${RUNNER_TOKEN:-}
+    networks: [WeKnora-network]
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 192m
+    cpus: 0.5
+    pids_limit: 64
+    restart: unless-stopped
+volumes:
+  studio-data:

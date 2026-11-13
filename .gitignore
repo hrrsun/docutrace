@@ -1,0 +1,24 @@
+# environments
+.venv/
+.vendor/
+vendor/
+__pycache__/
+*.pyc
+*.pyo
+
+# caches
+.pytest_cache/
+.ruff_cache/
+.runtime/
+.verify-*/
+.verify-tmp*/
+
+# local state / secrets
+.env
+.streamlit/secrets.toml
+*.key
+*.pem
+
+# os
+Thumbs.db
+.DS_Store

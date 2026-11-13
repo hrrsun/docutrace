@@ -1,0 +1,57 @@
+{
+  "dataset": "synthetic-v1",
+  "questions": 6,
+  "units": 11,
+  "backend": "faiss",
+  "hit_at_1": 1.0,
+  "hit_at_3": 1.0,
+  "retrieval_hit_at_1_by_mode": {
+    "keyword": 1.0,
+    "vector": 1.0,
+    "hybrid": 1.0
+  },
+  "cases": [
+    {
+      "query": "ALPHA pressure",
+      "rank": 1,
+      "expected": "17 kPa",
+      "latency_ms": 0.72,
+      "budget_used": 1795
+    },
+    {
+      "query": "BETA pressure",
+      "rank": 1,
+      "expected": "71 kPa",
+      "latency_ms": 0.31,
+      "budget_used": 1355
+    },
+    {
+      "query": "GAMMA voltage",
+      "rank": 1,
+      "expected": "48 V",
+      "latency_ms": 0.25,
+      "budget_used": 1461
+    },
+    {
+      "query": "验收偏差",
+      "rank": 1,
+      "expected": "0.8 mm",
+      "latency_ms": 0.17,
+      "budget_used": 969
+    },
+    {
+      "query": "冷链保温时限",
+      "rank": 1,
+      "expected": "36 小时",
+      "latency_ms": 0.21,
+      "budget_used": 1237
+    },
+    {
+      "query": "维修响应时限",
+      "rank": 1,
+      "expected": "4 小时",
+      "latency_ms": 0.25,
+      "budget_used": 1358
+    }
+  ]
+}

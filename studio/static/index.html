@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>知屿 · 私有知识工作台</title>
+    <link rel="stylesheet" href="/studio/static/style.css" />
+    <script defer src="/studio/static/app.js"></script>
+  </head>
+  <body>
+    <div id="login" class="login">
+      <section class="login-card">
+        <div class="brand">
+          <span class="logo">知</span> 知屿 <small>PRIVATE KNOWLEDGE</small>
+        </div>
+        <h1>让积累的知识<br />回到每一次思考里。</h1>
+        <p>连接你的本地知识库，学习、写作，也为私密资料保留边界。</p>
+        <form id="login-form">
+          <label
+            >知识库账号邮箱<input
+              id="email"
+              type="email"
+              autocomplete="username"
+              required
+              placeholder="使用已有的 WeKnora 账号"
+          /></label>
+          <label
+            >密码<input
+              id="password"
+              type="password"
+              autocomplete="current-password"
+              required
+          /></label>
+          <button class="primary">进入工作台 <span>→</span></button>
+        </form>
+        <p class="fine">
+          账号由本机 WeKnora 验证。密码不保存，登录凭据仅保留在当前标签页。
+        </p>
+        <a href="/platform/knowledge-bases">打开 WeKnora 注册或管理账号 ↗</a>
+      </section>
+      <aside class="login-art">
+        <div class="orbit one"></div>
+        <div class="orbit two"></div>
+        <div class="island">
+          <span>课程笔记</span><span>历史方案</span><span>项目资料</span
+          ><strong>你自己的<br />知识空间</strong>
+        </div>
+        <p>资料留在本地<br />答案回到来源</p>
+      </aside>
+    </div>
+    <div id="workspace" hidden>
+      <aside class="sidebar">
+        <div class="brand"><span class="logo">知</span> 知屿</div>
+        <button id="new-chat" class="new-chat">＋ 新建任务</button>
+        <nav>
+          <button class="nav active" data-page="chat">◈ 问答与创作</button>
+          <button class="nav" data-page="library">▤ 我的知识库</button>
+          <button class="nav" data-page="privacy">◇ 脱敏与还原</button>
+        </nav>
+        <div class="side-label">最近任务</div>
+        <div id="recent"></div>
+        <div class="side-bottom">
+          <button id="setup-agent" class="text-button">启用平台智能体</button
+          ><br /><a href="/platform/knowledge-bases">WeKnora 平台 ↗</a>
+          <div>
+            <span id="user-name"></span
+            ><button id="logout" class="text-button">退出</button>
+          </div>
+          <small>本地模型 · 本地资料</small>
+        </div>
+      </aside>
+      <main>
+        <header>
+          <span id="page-label">问答与创作</span>
+          <div class="status"><i></i> 私有工作空间 <span>Ollama</span></div>
+        </header>
+        <div id="notice" role="status" hidden></div>
+        <section id="chat" class="page">
+          <div class="intro">
+            <p class="eyebrow">YOUR KNOWLEDGE, WITH CONTEXT</p>
+            <h1>今天，从哪段知识开始？</h1>
+            <p>向过去的积累提问，把它变成新的理解和成果。</p>
+          </div>
+          <div class="scope">
+            <label
+              >本次使用的知识库<select id="scope">
+                <option value="">请选择知识库</option>
+              </select></label
+            ><button id="refresh" class="secondary">刷新</button
+            ><button id="load-demo" class="secondary">导入学习演示</button
+            ><button id="open-settings" class="text-button">任务设置</button>
+          </div>
+          <div id="settings" hidden class="panel">
+            <label
+              >只使用某份文档<select id="document-scope">
+                <option value="">所选知识库中的全部文档</option>
+              </select></label
+            >
+            <label
+              >始终保留的要求<textarea
+                id="constraints"
+                rows="2"
+                placeholder="例如：只根据所选课程回答；面向初学者；客户未提供的金额写待确认"
+              ></textarea>
+            </label>
+            <label
+              >上下文预算<select id="budget">
+                <option>4096</option>
+                <option selected>8192</option>
+                <option>16384</option>
+              </select></label
+            >
+            <small
+              >预算使用 UTF-8 字节作保守估算；实际模型 token
+              用量在回答后显示。</small
+            >
+            <details>
+              <summary>隔离 Python 计算</summary>
+              <label
+                >运行代码<textarea id="compute-code" rows="4">
+print(sum([17, 71, 48]))</textarea
+                ></label
+              ><button type="button" id="compute" class="secondary">
+                在一次性容器中运行
+              </button>
+              <pre id="compute-result"></pre>
+              <small
+                >代码由你显式运行。容器无外网与宿主文件挂载，执行完销毁，输出最多
+                8 KiB。</small
+              >
+            </details>
+          </div>
+          <div class="modes" id="modes">
+            <button data-mode="ask" class="mode active">
+              知识问答<span>解释概念 · 技术排查</span>
+            </button>
+            <button data-mode="review" class="mode">
+              复习提纲<span>梳理重点 · 关联知识</span>
+            </button>
+            <button data-mode="quiz" class="mode">
+              自测练习<span>问题 · 答案与依据</span>
+            </button>
+            <button data-mode="outline" class="mode">
+              文档大纲<span>组织材料 · 确认结构</span>
+            </button>
+            <button data-mode="write" class="mode">
+              撰写文档<span>依据资料 · 继续修改</span>
+            </button>
+          </div>
+          <div id="turns"></div>
+          <form id="question-form" class="composer">
+            <textarea
+              id="question"
+              rows="3"
+              required
+              placeholder="例如：结合这些课程资料解释梯度下降，并给我一个容易理解的例子"
+            ></textarea>
+            <div>
+              <small id="task-hint">选择资料范围后提问，回答会保留来源。</small
+              ><button class="primary" id="send">开始 <span>↑</span></button>
+            </div>
+          </form>
+          <section id="editor-panel" hidden class="panel">
+            <div class="section-head">
+              <h2>成果编辑</h2>
+              <button id="save-edit" class="secondary">保存修改</button>
+            </div>
+            <textarea id="editor" rows="12"></textarea>
+            <div class="actions">
+              <button id="download-md" class="secondary">导出 Markdown</button
+              ><button id="download-docx" class="secondary">导出 Word</button
+              ><small>导出同时附带本轮证据，方便核对。</small>
+            </div>
+        <details><summary id="version-button">查看保存历史</summary><div id="version-list"></div></details>
+          </section>
+        </section>
+        <section id="library" class="page" hidden>
+          <div class="intro">
+            <p class="eyebrow">A PLACE FOR WHAT YOU KNOW</p>
+            <h1>让资料有一个归处。</h1>
+            <p>
+              建议按课程、学期或项目建立独立知识库，提问时即可准确选择范围。
+            </p>
+          </div>
+          <div class="two-col">
+            <section class="panel">
+              <h2>新建知识库</h2>
+              <form id="library-form">
+                <label
+                  >名称<input
+                    id="library-name"
+                    required
+                    placeholder="例如：大二下 · 机器学习" /></label
+                ><label
+                  >说明<textarea
+                    id="library-description"
+                    rows="2"
+                    placeholder="课程主题、项目范围或使用约定"
+                  ></textarea></label
+                ><button class="primary">创建</button>
+              </form>
+            </section>
+            <section class="panel">
+              <h2>导入并结构化资料</h2>
+              <form id="import-form">
+                <label
+                  >导入到<select id="import-scope" required></select
+                ></label>
+                <div class="two-col">
+                  <label>课程 / 主题<input id="course" maxlength="100" /></label
+                  ><label
+                    >学期 / 版本<input id="semester" maxlength="100"
+                  /></label>
+                </div>
+                <label
+                  >文件<input
+                    id="upload"
+                    type="file"
+                    accept=".pdf,.docx,.xlsx,.pptx,.csv,.txt,.md"
+                    required /></label
+                ><small
+                  >每次一个文件，最多 25 MiB。PDF、Word、Excel、PPTX
+                  课件及文本均保留来源后入库。</small
+                ><button class="primary">解析并入库</button>
+              </form>
+            </section>
+          </div>
+          <section class="panel">
+            <div class="section-head">
+              <h2>知识库与文档</h2>
+              <button id="refresh-docs" class="secondary">刷新索引状态</button>
+            </div>
+            <div id="libraries-list"></div>
+            <div id="documents-list"></div>
+          </section>
+        </section>
+        <section id="privacy" class="page" hidden>
+          <div class="intro">
+            <p class="eyebrow">KEEP THE PRIVATE PART PRIVATE</p>
+            <h1>脱敏后导出，在本地还原。</h1>
+            <p>
+              替换明确的敏感字段，映射包用你自己的口令加密。云端使用前请检查上下文中是否仍有身份线索。
+            </p>
+          </div>
+          <div class="privacy-tabs">
+            <button class="secondary" id="to-redact">脱敏导出</button
+            ><button class="secondary" id="to-restore">导回还原</button>
+          </div>
+          <section id="redact-view" class="panel">
+            <label
+              >原始文本<textarea
+                id="private-text"
+                rows="8"
+                placeholder="粘贴需要处理的文本或 Markdown。此版本不会移除原文件附件、图片或修订信息。"
+              ></textarea>
+            </label>
+            <div class="actions">
+              <button id="detect" class="secondary">
+                识别邮箱、手机与证件候选</button
+              ><button id="suggest" class="secondary">
+                本地 AI 补充名称候选
+              </button>
+            </div>
+            <div id="detected"></div>
+            <label
+              >要替换的词，每行一个<textarea
+                id="private-values"
+                rows="4"
+                placeholder="客户公司名、联系人、项目代号等请手动补充"
+              ></textarea>
+            </label>
+            <label
+              >映射包口令<input
+                id="map-password"
+                type="password"
+                minlength="12"
+                autocomplete="new-password"
+                placeholder="至少 12 个字符，请自行保存"
+            /></label>
+            <button id="redact-button" class="primary">生成脱敏预览</button>
+            <div id="redacted-panel" hidden>
+              <h3>导出前核对</h3>
+              <pre id="redacted-preview"></pre>
+              <label class="check"
+                ><input
+                  id="confirm-export"
+                  type="checkbox"
+                />我已核对替换结果和间接身份线索，确认这份副本可以导出</label
+              >
+              <div class="actions">
+                <button id="export-redacted" class="secondary">
+                  下载脱敏 Markdown</button
+                ><button id="export-mapping" class="secondary">
+                  下载加密映射包
+                </button>
+              </div>
+              <small
+                >映射包与原文均不要交给云端。关闭页面后内存中的明文映射会丢失，请保存映射包和口令。</small
+              >
+            </div>
+          </section>
+          <section id="restore-view" class="panel" hidden>
+            <label
+              >云端返回的文本<textarea
+                id="restore-text"
+                rows="8"
+              ></textarea></label
+            ><label
+              >对应映射包<input
+                type="file"
+                id="mapping-file"
+                accept=".json" /></label
+            ><label
+              >映射包口令<input
+                id="restore-password"
+                type="password"
+                autocomplete="off" /></label
+            ><button id="restore-button" class="primary">在本地还原</button>
+            <div id="restore-report"></div>
+            <pre id="restored-preview"></pre>
+            <button id="export-restored" class="secondary" hidden>
+              下载还原文档
+            </button>
+          </section>
+        </section>
+        <footer>
+          知识库资料与本地模型在当前部署环境内处理。回答和生成内容需要对照来源核实。
+        </footer>
+      </main>
+    </div>
+  </body>
+</html>

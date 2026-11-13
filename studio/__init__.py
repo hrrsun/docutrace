@@ -1,0 +1,1 @@
+"""Private knowledge workspace extensions."""
